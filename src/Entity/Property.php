@@ -3,12 +3,19 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Cocur\Slugify\Slugify;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PropertyRepository")
  */
 class Property
 {
+    
+    const HEAT = [
+        0 => 'électrique',
+        1 => 'gaz'
+    ];
+    
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -69,14 +76,23 @@ class Property
     /**
      * @ORM\Column(type="boolean", options={"default": false})
      */
-    private $sold;
+    private $sold = false;
 
     /**
      * @ORM\Column(type="datetime")
      */
     private $create_at;
 
-    public function getId(): ?int
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $heat;
+    
+    function __construct() {
+        $this->create_at = new \DateTime();
+    }
+
+        public function getId(): ?int
     {
         return $this->id;
     }
@@ -93,6 +109,11 @@ class Property
         return $this;
     }
 
+    public function getSlug(): string {
+        
+        return (new Slugify())->slugify($this->title);
+        
+    }
     public function getDescription(): ?string
     {
         return $this->description;
@@ -165,6 +186,11 @@ class Property
         return $this;
     }
 
+    public function getFormatedPrice(): string
+    {
+        return number_format($this->price, 0, '', ' ');
+    }
+
     public function getCity(): ?string
     {
         return $this->city;
@@ -223,5 +249,22 @@ class Property
         $this->create_at = $create_at;
 
         return $this;
+    }
+
+    public function getHeat(): ?int
+    {
+        return $this->heat;
+    }
+
+    public function setHeat(int $heat): self
+    {
+        $this->heat = $heat;
+
+        return $this;
+    }
+    
+    public function getHeatType(): string {
+        
+        return self::HEAT[$this->heat];
     }
 }
